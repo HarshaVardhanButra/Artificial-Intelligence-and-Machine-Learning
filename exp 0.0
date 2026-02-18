@@ -1,0 +1,67 @@
+
+Experiment 0.0
+Aim: In this experiment I will explore the MNE Python library to load and check if I can load .set files from EEGlab
+
+Goal: Load .set into a structure where I can see EEG information and visualize the raw signal
+
+Method: I will follow the tutorial coming from MNE Python documentation
+
+Conclusion: Everything worked smoothly, the only part that was a bit messed up was that if the name of the .fdt doesn't match what is written internally in the .set then we can't plot. However this seems to be fixed in a merge 19days ago. Also the plots cannot be interactive if we are within a jupyer notebook (or I don't know how to make them interactive at the moment).
+
+%matplotlib inline
+import os
+import numpy as np
+import mne
+test_file = 'WSAS07_Baseline_P3_59chan_5min.set'
+raw = mne.io.read_raw_eeglab(test_file)
+Reading WSAS07_Baseline_P3_59chan_5min.fdt
+<ipython-input-23-88a36cf50bc5>:2: RuntimeWarning: Limited 3 annotation(s) that were expanding outside the data range.
+  raw = mne.io.read_raw_eeglab(test_file)
+<ipython-input-23-88a36cf50bc5>:2: RuntimeWarning: The data contains 'boundary' events, indicating data discontinuities. Be cautious of filtering and epoching around these events.
+  raw = mne.io.read_raw_eeglab(test_file)
+# This will print some simple information about the dataset
+print(raw)
+print(raw.info)
+<RawEEGLAB  |  WSAS07_Baseline_P3_59chan_5min.fdt, n_channels x n_times : 56 x 75001 (300.0 sec), ~153 kB, data not loaded>
+<Info | 17 non-empty fields
+    bads : list | 0 items
+    ch_names : list | E2, E4, E9, E10, E11, E13, E15, E18, E19, ...
+    chs : list | 56 items (EEG: 56)
+    comps : list | 0 items
+    custom_ref_applied : bool | False
+    dev_head_t : Transform | 3 items
+    dig : Digitization | 56 items (56 EEG)
+    events : list | 0 items
+    highpass : float | 0.0 Hz
+    hpi_meas : list | 0 items
+    hpi_results : list | 0 items
+    lowpass : float | 125.0 Hz
+    meas_date : NoneType | unspecified
+    nchan : int | 56
+    proc_history : list | 0 items
+    projs : list | 0 items
+    sfreq : float | 250.0 Hz
+    acq_pars : NoneType
+    acq_stim : NoneType
+    ctf_head_t : NoneType
+    description : NoneType
+    dev_ctf_t : NoneType
+    device_info : NoneType
+    experimenter : NoneType
+    file_id : NoneType
+    gantry_angle : NoneType
+    helium_info : NoneType
+    hpi_subsystem : NoneType
+    kit_system_id : NoneType
+    line_freq : NoneType
+    meas_id : NoneType
+    proj_id : NoneType
+    proj_name : NoneType
+    subject_info : NoneType
+    utc_offset : NoneType
+    xplotter_layout : NoneType
+>
+raw.plot(duration=5, n_channels=30)
+
+
+ 
