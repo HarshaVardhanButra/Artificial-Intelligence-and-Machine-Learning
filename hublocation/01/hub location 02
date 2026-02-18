@@ -1,0 +1,110 @@
+
+Experiment 0.1 Calculate wPLI on Raw Signal
+Aim: In this experiment I will explore how I can calculate wPLI from the raw signals in the same way I did in NeuroAlgo.
+
+Goal: Load .set into a raw format, calculate wPLI on any part of the data and show a simple matrix plot.
+
+Method: I will first check if mne as wPLI capability, if not I will check if Karim Jerbi's lab has wPLI code, if not I will adapt the code I have in MATLAB into a working python code (that won't be optimized though but we can speed that up with numpy or scipy).
+
+Conclusion:
+
+MNE Python API Search
+I've check the API and found out that the connectivity measure they have is this:
+
+degree : Compute the undirected degree of a connectivity matrix
+envelope_correlation: Compute the envelope correlation
+phase_slope_index: Compute the Phase Slope Index (PSI) connectivity measure
+seed_target_indices: Generate Indices parameter for seed based connectivity analysis.
+spectral_connectivity: Compute frequency-and time-frequency-domain connectivity measures
+It's a bit not clear but wPLI is actually located in the spectral_connectivity function.
+
+%matplotlib inline
+import os
+import numpy as np
+import mne
+
+# Load the raw data
+test_file = 'WSAS07_Baseline_P3_59chan_5min.set'
+raw = mne.io.read_raw_eeglab(test_file)
+Reading WSAS07_Baseline_P3_59chan_5min.fdt
+<ipython-input-7-bba13af1e37c>:8: RuntimeWarning: Limited 3 annotation(s) that were expanding outside the data range.
+  raw = mne.io.read_raw_eeglab(test_file)
+<ipython-input-7-bba13af1e37c>:8: RuntimeWarning: The data contains 'boundary' events, indicating data discontinuities. Be cautious of filtering and epoching around these events.
+  raw = mne.io.read_raw_eeglab(test_file)
+# Data is not loaded by default unto disk though (data not loaded)
+print(raw)
+
+data = raw.crop(tmax=10).load_data().get_data()
+data.shape
+data = np.reshape(data,[1,56,2501])
+data.shape
+<RawEEGLAB  |  WSAS07_Baseline_P3_59chan_5min.fdt, n_channels x n_times : 56 x 2501 (10.0 sec), ~1.2 MB, data loaded>
+(1, 56, 2501)
+# (n_epochs, n_signals, n_times)
+mne.connectivity.spectral_connectivity(data,method='wpli')
+Connectivity computation...
+only using indices for lower-triangular matrix
+    computing connectivity for 1540 connections
+    using t=0.000s..397.887s for estimation (2501 points)
+    frequencies: 0.0Hz..3.1Hz (1245 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: WPLI
+    computing connectivity for epoch 1
+    assembling connectivity matrix (filling the upper triangular region of the matrix)
+[Connectivity computation done]
+(array([[[0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         ...,
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.]],
+ 
+        [[1., 1., 1., ..., 1., 1., 1.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         ...,
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.]],
+ 
+        [[1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         ...,
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.]],
+ 
+        ...,
+ 
+        [[1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         ...,
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.]],
+ 
+        [[1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         ...,
+         [1., 1., 1., ..., 1., 1., 1.],
+         [0., 0., 0., ..., 0., 0., 0.],
+         [0., 0., 0., ..., 0., 0., 0.]],
+ 
+        [[1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         ...,
+         [1., 1., 1., ..., 1., 1., 1.],
+         [1., 1., 1., ..., 1., 1., 1.],
+         [0., 0., 0., ..., 0., 0., 0.]]]),
+ array([0.01507362, 0.01758588, 0.02009815, ..., 3.13531198, 3.13782425,
+        3.14033652]),
+ array([0.00000000e+00, 1.59154943e-01, 3.18309886e-01, ...,
+        3.97569048e+02, 3.97728203e+02, 3.97887358e+02]),
+ 1,
+ None)
+ 
